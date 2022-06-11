@@ -1,0 +1,1 @@
+-- TODO: need to write quiereies I will use in certain funtions when a user selects options in app
