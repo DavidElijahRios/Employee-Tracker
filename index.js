@@ -63,7 +63,7 @@ const init = () => {
       addEmployeeQ();
 
     } else if (answers.userChoice === 'Update employee role') {
-      updateEmployeeQ();
+      addUpdateQ();
 
     }
   })
@@ -72,31 +72,10 @@ const init = () => {
 
 
 
-const addDeptQ = () => {
-   inquirer.prompt([
-    {
-       type: "input",
-       message: "what is the name of the new department?",
-       name: "newDepartment"
-    },
-
-  ])
-  .then((answers) => {
-    db.query(`
-    INSERT INTO department (name)
-       VALUES 
-          ("${answers.newDepartment}")`, function (err) {
-      if (err) throw err;
-      console.log('New Department Added!');
-      init();
-    })
-  })
-}
-
 
 // ============================================================================
 // ============================================================================
-// Functions to access new updated data from database
+// Functions to access new updated data from database to use as options to select in application.
 
 // Function to get the department from db
 const deptArr = [];
@@ -112,32 +91,87 @@ const updatedDeptDb = () => {
 
 } 
 
-// TODO: Function to get Roles from db
+
+const roleArr = [];
+
+const updatedRoleDb = () => {
+  db.query("SELECT * FROM roles", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      roleArr.push(res[i].title)
+      // console.log("******", roleArr)
+    }
+  })
+   return roleArr;
+}
 
 
 
 
-// TODO: Function to get Manager options from db
+const managers = [];
 
+const managersDb = () => {
+  db.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      managers.push(res[i].first_name + " " + res[i].last_name)
+    }
+  })
+   return managers;
+}
 
 
 
 // TODO: Function to get all employees in a list from db
 
+const allEmployeesDb = () => {
+  const Employees = [];
+
+  db.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      Employees.push(res[i].first_name + " " + res[i].last_name)
+      // console.log("********",Employees)
+    }
+  })
+   return Employees;
+}
 
 
 
-// TODO: Function to get all roles in a list from db
 
 
 
 
-
-
-
-// ============================================================================
-// ============================================================================
+// =================================================================================================================
+// =================================================================================================================
+// =================================================================================================================
+// =================================================================================================================
 // Functions to use in application
+
+
+const addDeptQ = () => {
+  inquirer.prompt([
+   {
+      type: "input",
+      message: "what is the name of the new department?",
+      name: "newDepartment"
+   },
+
+ ])
+ .then((answers) => {
+   db.query(`
+   INSERT INTO department (name)
+      VALUES 
+         ("${answers.newDepartment}")`, function (err) {
+     if (err) throw err;
+     console.log('New Department Added!');
+     init();
+   })
+ })
+}
+
+
 
 
 const addRoleQ = () => {
@@ -178,8 +212,6 @@ const addRoleQ = () => {
 
 
 
-// TODO: add created function to call back for app functionality
-// !DO NOT FORGET to call back init() at the end of these functions below
 
 const addEmployeeQ = () => {
   return inquirer.prompt([
@@ -196,43 +228,64 @@ const addEmployeeQ = () => {
     {
       type: "list",
       message: "What is the Employee's Role?",
-      choices: [],
+      choices: updatedRoleDb(),
       name: "empRole"
     },
     {
       type: "list",
       message: "Who is the Employee's Manager?",
-      choices: [],
+      choices: managersDb(),
       name: "empManager"
     },
 
   ])
+  .then((answers) => {
+    const roleId = updatedRoleDb().indexOf(answers.empRole) + 1
+    const managerId = managersDb().indexOf(answers.empManager)
+    db.query(`
+    INSERT INTO employee (first_name, last_name, role_id, manager_id)
+       VALUES
+            ("${answers.firstName}", "${answers.lastName}", ${roleId}, ${managerId})
+    `, function (err) {
+      if (err) throw err;
+      console.log("New employee Added!")
+      init();
+    })
+  })
 }
 
-
-const updateEmployeeQ = () => {
+// !Figure out why this function wont work as a choice but it works elsewhere
+// When I add a third input it works
+const addUpdateQ = () => {
   return inquirer.prompt([
     {
+      type: "input",
+      message: "test",
+      // choices: allEmployeesDb(),
+      name: "test"
+    },
+    {
       type: "list",
-      message: "Which Employee's role do you want to update?",
-      choices: [],
-      name: "employee"
+      message: "Which employee's role do you want to update?",
+      choices: allEmployeesDb(),
+      name: "upEmployee"
     },
     {
       type: "list",
       message: "Which role do you want to assign the selected employee?",
-      choices: [],
-      name: "role"
+      choices: updatedRoleDb(),
+      name: "upRole"
     },
 
   ])
 
-  .then((answers) => {
-    db.query(``, function (err) {
-      if (err) throw err;
-      console.log("Updated employee's role!")
-    })
-  })
+//   .then((answers) => {
+//     db.query(``, function (err) {
+//       if (err) throw err;
+//       console.log("Updated employee's role!")
+          // init()
+//     })
+//   })
 }
 
 

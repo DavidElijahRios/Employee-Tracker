@@ -21,11 +21,11 @@ VALUES
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-    ("David", "Rios", 001, null),
-    ("Meredith", "Walton", 002, null),
-    ("Amanda", "Eggert", 003, 002),
-    ("Sammantha", "Purdy", 004, 003),
-    ("Tiffany", "Tran", 005, 003),
-    ("Mariella", "Virtual", 006, 003),
-    ("Holly", "Smith", 007, 003),
-    ("Flor", "Ambriz", 008, 002)
+    ("Meredith", "Walton", 001, null),
+    ("Amanda", "Eggert", 002, null),
+    ("David", "Rios", 003, 001),
+    ("Sammantha", "Purdy", 004, 002),
+    ("Tiffany", "Tran", 005, 002),
+    ("Mariella", "Virtual", 006, 002),
+    ("Holly", "Smith", 007, 002),
+    ("Flor", "Ambriz", 008, 001)
