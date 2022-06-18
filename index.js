@@ -122,8 +122,6 @@ const managersDb = () => {
 
 
 
-// TODO: Function to get all employees in a list from db
-
 const allEmployeesDb = () => {
   const Employees = [];
 
@@ -134,6 +132,7 @@ const allEmployeesDb = () => {
       // console.log("********",Employees)
     }
   })
+
    return Employees;
 }
 
@@ -254,39 +253,64 @@ const addEmployeeQ = () => {
   })
 }
 
-// !Figure out why this function wont work as a choice but it works elsewhere
+// TODO: Finish the functionality of this last function 
 // When I add a third input it works
 const addUpdateQ = () => {
-  return inquirer.prompt([
-    {
-      type: "input",
-      message: "test",
-      // choices: allEmployeesDb(),
-      name: "test"
-    },
-    {
-      type: "list",
-      message: "Which employee's role do you want to update?",
-      choices: allEmployeesDb(),
-      name: "upEmployee"
-    },
-    {
-      type: "list",
-      message: "Which role do you want to assign the selected employee?",
-      choices: updatedRoleDb(),
-      name: "upRole"
-    },
 
-  ])
+  const Employees = [];
+  const roleArr = [];
 
-//   .then((answers) => {
-//     db.query(``, function (err) {
-//       if (err) throw err;
-//       console.log("Updated employee's role!")
-          // init()
-//     })
-//   })
+  db.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      Employees.push(res[i].first_name + " " + res[i].last_name)
+      // console.log("********",Employees)
+    }
+
+    db.query("SELECT * FROM roles", function (err, res) {
+      if (err) throw err;
+      for (let i = 0; i < res.length; i++) {
+        roleArr.push(res[i].title)
+      }
+    })
+
+
+    console.log();
+    
+    return inquirer.prompt([
+      {
+        type: "list",
+        message: "Which employee's role do you want to update?",
+        choices: Employees,
+        name: "upEmployee"
+      },
+      {
+        type: "list",
+        message: "Which role do you want to assign the selected employee?",
+        choices: roleArr,
+        name: "upRole"
+      },
+  
+    ])
+  })
+
+  // TODO Finish this update query
+  .then((answers) => {
+    db.query(`
+        SELECT last_name FROM employees WHERE last_name = 
+    `, function (err) {
+      if (err) throw err;
+      console.log("Updated employee's role!")
+          init()
+    })
+  })
 }
+
+
+
+
+
+
 
 
 
