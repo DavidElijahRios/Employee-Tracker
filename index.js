@@ -27,13 +27,12 @@ const init = () => {
     {
       type: 'list',
       message: "What would you like to do?",
-      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update employee role'],
+      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update employee role', 'Exit'],
       name: "userChoice"
     },
   ])
 
   .then((answers) => {
-    console.log(answers)
     if(answers.userChoice === 'View all departments') {
       // query db to access database
       db.query('SELECT * FROM department', function (err, res) {
@@ -65,6 +64,9 @@ const init = () => {
     } else if (answers.userChoice === 'Update employee role') {
       addUpdateQ();
 
+    } else if (answers.userChoice === 'Exit') {
+      db.end() 
+      console.log("Session Ended..GOOD-BYE")
     }
   })
 }
@@ -196,7 +198,7 @@ const addRoleQ = () => {
   ])
 
   .then((answers) => {
-    const roleId = updatedDeptDb().indexOf(answers.newRolDept) + 1
+    const roleId = updatedDeptDb().indexOf(answers.newRolDept)
      db.query(`
      INSERT INTO roles (title, salary, department_id)
        VALUES
@@ -239,7 +241,7 @@ const addEmployeeQ = () => {
 
   ])
   .then((answers) => {
-    const roleId = updatedRoleDb().indexOf(answers.empRole) + 1
+    const roleId = updatedRoleDb().indexOf(answers.empRole) 
     const managerId = managersDb().indexOf(answers.empManager)
     db.query(`
     INSERT INTO employee (first_name, last_name, role_id, manager_id)
@@ -253,6 +255,7 @@ const addEmployeeQ = () => {
   })
 }
 
+// !Could Not get this last function to run
 // TODO: Finish the functionality of this last function 
 // When I add a third input it works
 const addUpdateQ = () => {
@@ -264,7 +267,6 @@ const addUpdateQ = () => {
     if (err) throw err;
     for (let i = 0; i < res.length; i++) {
       Employees.push(res[i].first_name + " " + res[i].last_name)
-      // console.log("********",Employees)
     }
 
     db.query("SELECT * FROM roles", function (err, res) {
@@ -295,9 +297,14 @@ const addUpdateQ = () => {
   })
 
   // TODO Finish this update query
-  .then((answers) => {
+ .then((answers) => {
+
     db.query(`
-        SELECT last_name FROM employees WHERE last_name = 
+        UPDATE employee
+        SET 
+          role_id = ${answers.upRole}
+        WHERE
+            first_name, last_name = '${answers.upEmployee}'
     `, function (err) {
       if (err) throw err;
       console.log("Updated employee's role!")
